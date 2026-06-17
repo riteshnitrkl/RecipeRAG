@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 chroma_db/
 .vscode/
+.DS_Store
+**/.DS_Store
