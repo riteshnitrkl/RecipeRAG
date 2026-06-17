@@ -14,7 +14,7 @@ NEW IN V4:
 import os
 import re
 from dotenv import load_dotenv
-
+from ingest import build_chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_groq import ChatGroq
@@ -202,7 +202,7 @@ def detect_state(s: str) -> dict | None:
     return None
 
 
-# Generic "what to eat" / "suggest food" — separate from states, also food-routed
+
 _FOOD_SUGGESTION_PATTERNS = [
     r"\bwhat (should|can|do|to) (i|we)? ?eat\b",
     r"\bwhat to eat\b",
@@ -563,8 +563,23 @@ def _default_opener(state: str, category: str) -> str:
 
 def get_chain():
 
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embeddings)
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    chroma_file = os.path.join(
+        CHROMA_PATH,
+        "chroma.sqlite3"
+    )
+
+    if not os.path.exists(chroma_file):
+        print("Chroma DB not found. Building...")
+        build_chroma()
+
+    db = Chroma(
+        persist_directory=CHROMA_PATH,
+        embedding_function=embeddings
+    )
 
     llm = ChatGroq(
         model="llama-3.1-8b-instant",

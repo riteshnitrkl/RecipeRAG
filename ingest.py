@@ -97,37 +97,50 @@ def load_recipe_book():
     return documents
 
 
-def main():
+def build_chroma():
     all_documents = []
+
     all_documents += load_indian_food_dataset()
     all_documents += load_cuisines_dataset()
     all_documents += load_recipe_book()
 
     print(f"\nTotal documents: {len(all_documents)}")
 
-    print("Splitting into chunks...")
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
         chunk_overlap=50,
     )
+
     chunks = splitter.split_documents(all_documents)
+
     print(f"Created {len(chunks)} chunks.")
 
-    print("Creating embeddings and storing in ChromaDB (this may take a while)...")
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
     batch_size = 500
     db = None
+
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i + batch_size]
+
         if db is None:
-            db = Chroma.from_documents(batch, embeddings, persist_directory=CHROMA_PATH)
+            db = Chroma.from_documents(
+                batch,
+                embeddings,
+                persist_directory=CHROMA_PATH
+            )
         else:
             db.add_documents(batch)
-        print(f"Processed {min(i + batch_size, len(chunks))}/{len(chunks)} chunks")
+
+        print(
+            f"Processed {min(i + batch_size, len(chunks))}/{len(chunks)} chunks"
+        )
 
     print(f"Done! Vector DB saved to '{CHROMA_PATH}'.")
 
+    return db
 
 if __name__ == "__main__":
-    main()
+    build_chroma()
