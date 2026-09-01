@@ -586,10 +586,6 @@ def get_chain():
         temperature=0.2,
         max_tokens=900,          # prevents runaway repetition loops
         groq_api_key=os.environ.get("GROQ_API_KEY"),
-        model_kwargs={
-            "frequency_penalty": 0.3,   # discourages "However, ..." style repetition
-            "presence_penalty":  0.1,
-        },
     )
 
     # ── Router ──────────────────────────────────────────────────────────────
