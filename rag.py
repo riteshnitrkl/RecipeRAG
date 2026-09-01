@@ -582,7 +582,7 @@ def get_chain():
     )
 
     llm = ChatGroq(
-        model="llama-3.1-8b-instant",
+        model="openai/gpt-oss-20b",
         temperature=0.2,
         max_tokens=900,          # prevents runaway repetition loops
         groq_api_key=os.environ.get("GROQ_API_KEY"),
